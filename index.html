@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Asistente de Programación | IA Simulación local</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e2001a; /* Rojo Bancamiga */
+            --secondary-color: #0055a5; /* Azul Bancamiga */
+            --light-color: #f5f5f5;
+            --dark-color: #333333;
+            --gray-color: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+        }
+        
+        .tagline {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            padding: 30px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+        
+        .sidebar h2 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gray-color);
+        }
+        
+        .faq-list {
+            list-style: none;
+        }
+        
+        .faq-list li {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: var(--light-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--gray-color);
+        }
+        
+        .faq-list li:hover {
+            background-color: var(--gray-color);
+            transform: translateX(5px);
+            border-left-color: var(--primary-color);
+        }
+        
+        .faq-list li.active {
+            background-color: #e3f2fd;
+            border-left-color: var(--secondary-color);
+        }
+        
+        .faq-list li i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+        
+        .chat-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 15px;
+            border-radius: 15px;
+            line-height: 1.5;
+        }
+        
+        .message.user {
+            background-color: #e3f2fd;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.assistant {
+            background-color: var(--light-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-input {
+            display: flex;
+            border-top: 1px solid var(--gray-color);
+            padding: 20px;
+        }
+        
+        .chat-input input {
+            flex-grow: 1;
+            padding: 15px;
+            border: 1px solid var(--gray-color);
+            border-radius: 30px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .chat-input input:focus {
+            border-color: var(--secondary-color);
+        }
+        
+        .chat-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin-left: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input button:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+        
+        /* Basic Controls */
+        .basic-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .control-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .control-btn:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .ai-status {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .ai-status.online {
+            color: #4caf50;
+        }
+        
+        .ai-status i {
+            margin-right: 8px;
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .loading span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        
+        .loading span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .loading span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .chat-container {
+                height: 60vh;
+            }
+            
+            .basic-controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <div>
+                        <h1>Asistente de Programación</h1>
+                        <p class="tagline">Respuestas inteligentes sobre lenguajes de programación</p>
+                    </div>
+                </div>
+                <div class="ai-status online">
+                    <i class="fas fa-circle"></i> Demo Agente IA Local - Operando en Venezuela
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="main-content">
+            <aside class="sidebar">
+                <h2><i class="fas fa-question-circle"></i> Preguntas Frecuentes</h2>
+                <ul class="faq-list">
+                    <li data-question="facilidad">
+                        <i class="fas fa-graduation-cap"></i> ¿Cuál es el lenguaje más fácil para aprender?
+                    </li>
+                    <li data-question="competitividad">
+                        <i class="fas fa-trophy"></i> ¿Cuál es el lenguaje más competitivo en el mercado?
+                    </li>
+                    <li data-question="rendimiento">
+                        <i class="fas fa-bolt"></i> ¿Qué lenguaje tiene mejor rendimiento?
+                    </li>
+                    <li data-question="salario">
+                        <i class="fas fa-money-bill-wave"></i> ¿Qué lenguaje paga mejores salarios?
+                    </li>
+                    <li data-question="inicio">
+                        <i class="fas fa-history"></i> ¿Cuáles fueron los primeros lenguajes de programación?
+                    </li>
+                    <li data-question="caracteristicas">
+                        <i class="fas fa-star"></i> Características principales de los lenguajes modernos
+                    </li>
+                    <li data-question="tendencias">
+                        <i class="fas fa-chart-line"></i> Tendencias actuales en programación
+                    </li>
+                    <li data-question="recomendacion">
+                        <i class="fas fa-hand-point-right"></i> ¿Qué lenguaje debo aprender primero?
+                    </li>
+                </ul>
+            </aside>
+            
+            <section class="chat-container">
+                <div class="chat-header">
+                    <h2><i class="fas fa-comments"></i> Asistente de IA</h2>
+                    <p>Pregunta sobre lenguajes de programación</p>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant">
+                        <p>¡Hola! Soy tu asistente de programación. Puedo responder preguntas sobre lenguajes de programación, sus características, salarios, competitividad y más.</p>
+                        <p>Selecciona una pregunta frecuente de la izquierda o escribe tu propia pregunta.</p>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="userInput" placeholder="Escribe tu pregunta sobre programación..." autocomplete="off">
+                    <button id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </section>
+        </div>
+        
+        <div class="basic-controls">
+            <button class="control-btn" id="clearChat">
+                <i class="fas fa-trash-alt"></i> Limpiar Chat
+            </button>
+            <button class="control-btn" id="exportChat">
+                <i class="fas fa-download"></i> Exportar Conversación
+            </button>
+            <button class="control-btn" id="newTopic">
+                <i class="fas fa-plus"></i> Nuevo Tema
+            </button>
+            <button class="control-btn" id="helpBtn">
+                <i class="fas fa-question-circle"></i> Ayuda
+            </button>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-code"></i> Asistente de Programación
+                </div>
+                <p>Aplicación web con IA simulada 100% local | Desarrollada para Demostración en Venezuela</p>
+                <p>Autor: Estudiante TSU Ramsés H Flores Miranda - S4-S5 2025-2 - Trayecto 4 - Enero 2.026</p>
+                <p><strong> UNETI - PNF Ingeniería en Informática - UC Inteligencia Artificial - Docente: Ing. Ivannie Blanco </strong></p>
+                <div class="ai-status online">
+                    <i class="fas fa-server"></i> Lista para desplegar en Netlify(R)
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Base de conocimiento de preguntas frecuentes sobre programación
+        const faqDatabase = {
+            "facilidad": {
+                pregunta: "¿Cuál es el lenguaje más fácil para aprender?",
+                respuesta: "Generalmente, Python es considerado el lenguaje más fácil para aprender debido a su sintaxis simple y legible que se asemeja al inglés. Otros lenguajes fáciles para principiantes incluyen JavaScript (especialmente para desarrollo web), HTML/CSS (aunque técnicamente no son lenguajes de programación) y Scratch (para niños y principiantes absolutos)."
+            },
+            "competitividad": {
+                pregunta: "¿Cuál es el lenguaje más competitivo en el mercado?",
+                respuesta: "JavaScript sigue siendo extremadamente competitivo por su dominio en el desarrollo web. Python también es muy competitivo debido a su uso en ciencia de datos, IA y automatización. Otros lenguajes con alta demanda en el mercado incluyen Java (especialmente en empresas grandes), C# (para desarrollo de software empresarial y videojuegos) y Go (para sistemas distribuidos)."
+            },
+            "rendimiento": {
+                pregunta: "¿Qué lenguaje tiene mejor rendimiento?",
+                respuesta: "Los lenguajes compilados como C, C++ y Rust generalmente ofrecen el mejor rendimiento debido a su proximidad al hardware y gestión manual de memoria. Para aplicaciones web, Go y Java ofrecen excelente rendimiento. Python y JavaScript, aunque más lentos en ejecución, compensan con velocidad de desarrollo y vastos ecosistemas de librerías."
+            },
+            "salario": {
+                pregunta: "¿Qué lenguaje paga mejores salarios?",
+                respuesta: "Según encuestas recientes, los lenguajes que suelen asociarse con los salarios más altos incluyen: Rust, Go, Scala, y Python (especialmente en roles de ciencia de datos y machine learning). También los desarrolladores especializados en lenguajes como Kotlin (Android) y Swift (iOS) suelen tener salarios competitivos."
+            },
+            "inicio": {
+                pregunta: "¿Cuáles fueron los primeros lenguajes de programación?",
+                respuesta: "Los primeros lenguajes de programación incluyen: FORTRAN (1957, para cálculos científicos), LISP (1958, para inteligencia artificial), COBOL (1959, para negocios), ALGOL (1958, influyó en muchos lenguajes modernos), y BASIC (1964, para educación). Estos lenguajes sentaron las bases para la programación moderna."
+            },
+            "caracteristicas": {
+                pregunta: "Características principales de los lenguajes modernos",
+                respuesta: "Los lenguajes modernos suelen incluir: 1) Sintaxis más legible y concisa, 2) Tipado estático o dinámico según el caso, 3) Gestión automática de memoria (recolectores de basura), 4) Programación orientada a objetos y funcional, 5) Concurrencia y paralelismo integrados, 6) Ecosistemas ricos con gestores de paquetes, 7) Interoperabilidad con otros lenguajes, 8) Enfoque en seguridad y rendimiento."
+            },
+            "tendencias": {
+                pregunta: "Tendencias actuales en programación",
+                respuesta: "Las tendencias actuales incluyen: 1) Inteligencia Artificial y Machine Learning (Python lidera), 2) Desarrollo de aplicaciones móviles nativas y multiplataforma, 3) Computación en la nube y serverless, 4) Lenguajes de bajo nivel modernos como Rust y Zig, 5) WebAssembly para ejecutar código de alto rendimiento en navegadores, 6) Desarrollo low-code/no-code, 7) Programación funcional ganando popularidad, 8) DevOps y automatización de infraestructura."
+            },
+            "recomendacion": {
+                pregunta: "¿Qué lenguaje debo aprender primero?",
+                respuesta: "Depende de tus objetivos: 1) Para desarrollo web: JavaScript/HTML/CSS, 2) Para ciencia de datos/IA: Python, 3) Para aplicaciones móviles: Kotlin (Android) o Swift (iOS), 4) Para software de sistemas: C++ o Rust, 5) Para desarrollo de juegos: C# con Unity, 6) Para desarrollo empresarial: Java o C#. Python es una excelente opción general por su versatilidad y facilidad de aprendizaje."
+            }
+        };
+
+        // Elementos del DOM
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const clearChatButton = document.getElementById('clearChat');
+        const exportChatButton = document.getElementById('exportChat');
+        const newTopicButton = document.getElementById('newTopic');
+        const helpButton = document.getElementById('helpBtn');
+        const faqItems = document.querySelectorAll('.faq-list li');
+
+        // Estado de la conversación
+        let conversationHistory = [
+            {
+                sender: 'assistant',
+                message: '¡Hola! Soy tu asistente de programación. Puedo responder preguntas sobre lenguajes de programación, sus características, salarios, competitividad y más. Selecciona una pregunta frecuente de la izquierda o escribe tu propia pregunta.'
+            }
+        ];
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            renderChat();
+            setupEventListeners();
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Enviar mensaje al hacer clic en el botón
+            sendButton.addEventListener('click', sendMessage);
+            
+            // Enviar mensaje al presionar Enter
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Botones de control
+            clearChatButton.addEventListener('click', clearChat);
+            exportChatButton.addEventListener('click', exportChat);
+            newTopicButton.addEventListener('click', startNewTopic);
+            helpButton.addEventListener('click', showHelp);
+            
+            // Preguntas frecuentes
+            faqItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remover clase active de todos los items
+                    faqItems.forEach(i => i.classList.remove('active'));
+                    // Agregar clase active al item clickeado
+                    item.classList.add('active');
+                    
+                    const questionKey = item.getAttribute('data-question');
+                    const faq = faqDatabase[questionKey];
+                    
+                    if (faq) {
+                        // Agregar pregunta del usuario
+                        addMessage('user', faq.pregunta);
+                        // Simular tiempo de respuesta de la IA
+                        setTimeout(() => {
+                            addMessage('assistant', faq.respuesta);
+                        }, 500);
+                    }
+                });
+            });
+        }
+
+        // Enviar mensaje
+        function sendMessage() {
+            const message = userInput.value.trim();
+            
+            if (message === '') return;
+            
+            // Agregar mensaje del usuario
+            addMessage('user', message);
+            
+            // Limpiar input
+            userInput.value = '';
+            
+            // Mostrar indicador de carga
+            showLoadingIndicator();
+            
+            // Simular tiempo de respuesta de la IA
+            setTimeout(() => {
+                // Ocultar indicador de carga
+                hideLoadingIndicator();
+                
+                // Obtener respuesta de la IA simulada
+                const response = getAIResponse(message);
+                addMessage('assistant', response);
+            }, 800);
+        }
+
+        // Obtener respuesta de IA simulada
+        function getAIResponse(message) {
+            const messageLower = message.toLowerCase();
+            
+            // Buscar coincidencias en la base de conocimiento
+            for (const [key, faq] of Object.entries(faqDatabase)) {
+                if (messageLower.includes(key) || 
+                    messageLower.includes(faq.pregunta.toLowerCase().substring(0, 10))) {
+                    return faq.respuesta;
+                }
+            }
+            
+            // Respuestas para preguntas no encontradas
+            const responses = [
+                "Interesante pregunta. Basado en mi conocimiento sobre lenguajes de programación, puedo decirte que cada lenguaje tiene sus fortalezas y debilidades. ¿Podrías ser más específico sobre qué aspecto te interesa?",
+                "Esa es una buena pregunta sobre programación. Te recomendaría explorar nuestras preguntas frecuentes en la barra lateral para obtener información más específica sobre diferentes lenguajes.",
+                "Como asistente de programación, puedo ayudarte con información sobre sintaxis, salarios, demanda laboral, dificultad de aprendizaje y características de los principales lenguajes de programación. ¿Sobre qué lenguaje específico te gustaría saber más?",
+                "Los lenguajes de programación evolucionan constantemente. ¿Te interesa conocer sobre lenguajes específicos como Python, JavaScript, Java, C++, Rust, Go, o prefieres una comparación entre ellos?"
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        // Agregar mensaje al chat
+        function addMessage(sender, message) {
+            conversationHistory.push({
+                sender: sender,
+                message: message,
+                timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
+            
+            renderChat();
+            scrollToBottom();
+        }
+
+        // Mostrar indicador de carga
+        function showLoadingIndicator() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant loading';
+            loadingDiv.id = 'loadingIndicator';
+            loadingDiv.innerHTML = '<span></span><span></span><span></span> Pensando...';
+            chatMessages.appendChild(loadingDiv);
+            scrollToBottom();
+        }
+
+        // Ocultar indicador de carga
+        function hideLoadingIndicator() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) {
+                loadingIndicator.remove();
+            }
+        }
+
+        // Renderizar chat
+        function renderChat() {
+            chatMessages.innerHTML = '';
+            
+            conversationHistory.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${msg.sender}`;
+                
+                const messageText = document.createElement('p');
+                messageText.textContent = msg.message;
+                
+                messageDiv.appendChild(messageText);
+                
+                // Agregar timestamp si está disponible
+                if (msg.timestamp) {
+                    const timestamp = document.createElement('div');
+                    timestamp.style.fontSize = '0.8rem';
+                    timestamp.style.opacity = '0.7';
+                    timestamp.style.marginTop = '5px';
+                    timestamp.textContent = msg.timestamp;
+                    messageDiv.appendChild(timestamp);
+                }
+                
+                chatMessages.appendChild(messageDiv);
+            });
+        }
+
+        // Desplazarse al final del chat
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Limpiar chat
+        function clearChat() {
+            conversationHistory = [{
+                sender: 'assistant',
+                message: '¡Hola! Soy tu asistente de programación. Puedo responder preguntas sobre lenguajes de programación, sus características, salarios, competitividad y más. Selecciona una pregunta frecuente de la izquierda o escribe tu propia pregunta.'
+            }];
+            
+            // Remover clase active de todos los items FAQ
+            faqItems.forEach(item => item.classList.remove('active'));
+            
+            renderChat();
+        }
+
+        // Exportar conversación
+        function exportChat() {
+            let exportText = "Conversación con Asistente de Programación\n";
+            exportText += "==========================================\n\n";
+            
+            conversationHistory.forEach(msg => {
+                const sender = msg.sender === 'user' ? 'Tú' : 'Asistente';
+                exportText += `${sender} (${msg.timestamp || 'Sin hora'}):\n`;
+                exportText += `${msg.message}\n\n`;
+            });
+            
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'conversacion-programacion.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Nuevo tema
+        function startNewTopic() {
+            addMessage('user', 'Me gustaría hablar sobre un nuevo tema de programación');
+            setTimeout(() => {
+                addMessage('assistant', '¡Claro! Estoy listo para ayudarte con un nuevo tema. ¿Sobre qué aspecto de la programación te gustaría conversar? Puedo hablar sobre tendencias actuales, lenguajes emergentes, mejores prácticas, o cualquier otro tema relacionado.');
+            }, 600);
+        }
+
+        // Mostrar ayuda
+        function showHelp() {
+            addMessage('user', '¿Cómo puedo usar este asistente?');
+            setTimeout(() => {
+                addMessage('assistant', 'Puedes usar este asistente de las siguientes maneras:\n\n1. Selecciona una pregunta frecuente de la barra lateral izquierda.\n2. Escribe tu propia pregunta en el campo de texto.\n3. Usa los botones de control para limpiar el chat, exportar la conversación o comenzar un nuevo tema.\n\nPuedo responder preguntas sobre lenguajes de programación, sus características, salarios, competitividad, dificultad de aprendizaje y mucho más.');
+            }, 500);
+        }
+    </script>
+</body>
+</html>
